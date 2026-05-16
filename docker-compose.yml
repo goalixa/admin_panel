@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  admin:
+    build: .
+    ports:
+      - "8080:80"
+    environment:
+      - ADMIN_SECRET_KEY=${ADMIN_SECRET_KEY}
+      - AUTH_SERVICE_URL=${AUTH_SERVICE_URL}
+      - CORE_API_URL=${CORE_API_URL}
+    depends_on:
+      - auth
+      - core-api
+    networks:
+      - goalixa
+
+networks:
+  goalixa:
+    external: true

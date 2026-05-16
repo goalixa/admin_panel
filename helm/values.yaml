@@ -1,0 +1,44 @@
+replicaCount: 2
+
+image:
+  repository: harbor.goalixa.com/goalixa-admin
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  className: nginx
+  host: admin.goalixa.com
+  tls:
+    enabled: true
+    secretName: admin-tls
+
+env:
+  AUTH_SERVICE_URL: http://goalixa-auth:80
+  CORE_API_URL: http://goalixa-core-api:80
+  DATABASE_URL: postgresql://goalixa:goalixa@goalixa-postgresql:5432/goalixa_admin
+  REDIS_URL: redis://goalixa-redis:6379/0
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 256Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

@@ -1,0 +1,24 @@
+replicaCount: 1
+
+image:
+  tag: "staging-latest"
+
+ingress:
+  host: admin.staging.goalixa.com
+
+env:
+  AUTH_SERVICE_URL: http://goalixa-auth.staging:80
+  CORE_API_URL: http://goalixa-core-api.staging:80
+  DATABASE_URL: postgresql://goalixa:goalixa@goalixa-postgresql.staging:5432/goalixa_admin
+  REDIS_URL: redis://goalixa-redis.staging:6379/0
+
+resources:
+  limits:
+    cpu: 250m
+    memory: 256Mi
+  requests:
+    cpu: 50m
+    memory: 128Mi
+
+autoscaling:
+  enabled: false

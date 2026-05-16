@@ -1,0 +1,1 @@
+"""Goalixa Admin Service."""

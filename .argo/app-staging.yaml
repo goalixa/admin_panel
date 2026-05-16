@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: goalixa-admin-staging
+  namespace: argocd
+spec:
+  project: staging
+  source:
+    repoURL: https://github.com/goalixa/goalixa-services
+    targetRevision: staging
+    path: admin_panel/helm
+    helm:
+      valueFiles:
+      - values-staging.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: goalixa-admin-staging
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
