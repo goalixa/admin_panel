@@ -1,17 +1,26 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: goalixa-admin-production
+  name: goalixa-admin
   namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    app.kubernetes.io/name: admin
+    app.kubernetes.io/part-of: goalixa
+    environment: production
 spec:
-  project: production
+  project: default
   source:
-    repoURL: https://github.com/goalixa/goalixa-services
+    repoURL: https://github.com/goalixa/admin_panel.git
     targetRevision: main
-    path: admin_panel/helm
+    path: helm
     helm:
       valueFiles:
-      - values-production.yaml
+        - values-production.yaml
+      parameters:
+        - name: image.tag
+          value: latest
   destination:
     server: https://kubernetes.default.svc
     namespace: goalixa-admin
@@ -19,5 +28,24 @@ spec:
     automated:
       prune: true
       selfHeal: true
+      allowEmpty: false
     syncOptions:
-    - CreateNamespace=true
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - RespectIgnoreDifferences=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas
+    - group: ""
+      kind: Secret
+      name: admin-secrets
+      jsonPointers:
+        - /data

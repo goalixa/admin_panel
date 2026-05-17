@@ -1,7 +1,7 @@
 replicaCount: 2
 
 image:
-  repository: harbor.goalixa.com/goalixa-admin
+  repository: harbor.goalixa.com/admin_panel/admin
   pullPolicy: IfNotPresent
   tag: "latest"
 
