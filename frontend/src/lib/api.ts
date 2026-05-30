@@ -31,6 +31,15 @@ export interface User {
   email_verified: boolean
   created_at: string
   last_login?: string
+  total_tasks?: number
+  completed_tasks?: number
+  total_projects?: number
+  recent_tasks?: Array<{
+    id: number
+    name: string
+    status: string
+    created_at: string
+  }>
 }
 
 export interface UsersResponse {
@@ -47,6 +56,9 @@ export interface Analytics {
   new_users_today: number
   new_users_week: number
   new_users_month: number
+  total_tasks: number
+  completed_tasks: number
+  total_projects: number
 }
 
 export interface ServiceHealth {
@@ -81,8 +93,46 @@ export function deleteUser(id: number) {
   return apiRequest<{ message: string }>(`/users/${id}`, { method: 'DELETE' })
 }
 
+export interface ActivityData {
+  activity: Array<{
+    date: string
+    count: number
+  }>
+}
+
 export function getAnalytics() {
   return apiRequest<Analytics>('/analytics')
+}
+
+export interface LoginHistory {
+  logins: Array<{
+    id: number
+    email: string
+    timestamp: string
+    device: string
+  }>
+  total: number
+}
+
+export interface TaskActivityData {
+  task_activity: Array<{
+    date: string
+    created: number
+    completed: number
+  }>
+}
+
+export function getActivity() {
+  return apiRequest<ActivityData>('/analytics/activity')
+}
+
+export function getTaskAnalytics() {
+  return apiRequest<TaskActivityData>('/analytics/tasks')
+}
+
+export function getLogins(params?: { page?: number; per_page?: number }) {
+  const query = new URLSearchParams(params as Record<string, string>)
+  return apiRequest<LoginHistory>(`/analytics/logins?${query}`)
 }
 
 export function getHealth() {

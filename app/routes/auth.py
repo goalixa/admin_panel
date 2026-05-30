@@ -26,39 +26,32 @@ class LoginResponse(BaseModel):
 async def login(request: LoginRequest):
     """Login admin user via goalixa-auth."""
     async with httpx.AsyncClient() as client:
-        # Call goalixa-auth login
+        # Call goalixa-auth syntra login (which returns tokens in body)
         response = await client.post(
-            f"{settings.auth_service_url}/login",
+            f"{settings.auth_service_url}/api/syntra/login",
             json={"email": request.email, "password": request.password},
         )
 
         if response.status_code != 200:
+            if response.status_code == 403:
+                raise HTTPException(status_code=403, detail="Not an admin user or no active Syntra profile")
             raise HTTPException(status_code=401, detail="Invalid credentials")
 
         data = response.json()
         access_token = data.get("access_token")
+        refresh_token = data.get("refresh_token", "")
+        user_data = data.get("user")
 
         if not access_token:
-            raise HTTPException(status_code=401, detail="No access token")
+            raise HTTPException(status_code=401, detail="No access token returned from auth service")
 
-        # Verify admin role via goalixa-auth
-        verify_response = await client.get(
-            f"{settings.auth_service_url}/me",
-            headers={"Authorization": f"Bearer {access_token}"},
-        )
-
-        if verify_response.status_code != 200:
-            raise HTTPException(status_code=401, detail="Token validation failed")
-
-        user_data = verify_response.json()
-
-        # Check if user is admin
+        # Check if user is admin (syntra login already checked this, but good to double check)
         if user_data.get("role") != "admin":
             raise HTTPException(status_code=403, detail="Not an admin user")
 
         return LoginResponse(
             access_token=access_token,
-            refresh_token=data.get("refresh_token", ""),
+            refresh_token=refresh_token,
             user=user_data,
         )
 
@@ -77,7 +70,7 @@ async def refresh_token(authorization: str = Header(None)):
 
     async with httpx.AsyncClient() as client:
         response = await client.post(
-            f"{settings.auth_service_url}/refresh",
+            f"{settings.auth_service_url}/api/refresh",
             headers={"Authorization": authorization},
         )
 

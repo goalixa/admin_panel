@@ -17,6 +17,9 @@ class AnalyticsResponse(BaseModel):
     new_users_today: int = 0
     new_users_week: int = 0
     new_users_month: int = 0
+    total_tasks: int = 0
+    completed_tasks: int = 0
+    total_projects: int = 0
 
 
 @router.get("", response_model=AnalyticsResponse)
@@ -74,5 +77,23 @@ async def get_activity(authorization: str = Header(None)):
 
         if response.status_code != 200:
             return {"activity": []}
+
+        return response.json()
+
+
+@router.get("/tasks")
+async def get_task_analytics(authorization: str = Header(None)):
+    """Get task activity data."""
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Missing authorization")
+
+    async with httpx.AsyncClient() as client:
+        response = await client.get(
+            f"{settings.core_api_url}/api/analytics/tasks",
+            headers={"Authorization": authorization},
+        )
+
+        if response.status_code != 200:
+            return {"task_activity": []}
 
         return response.json()

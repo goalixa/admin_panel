@@ -18,6 +18,10 @@ class UserResponse(BaseModel):
     email_verified: bool
     created_at: Optional[str] = None
     last_login: Optional[str] = None
+    total_tasks: Optional[int] = 0
+    completed_tasks: Optional[int] = 0
+    total_projects: Optional[int] = 0
+    recent_tasks: Optional[List[dict]] = []
 
 
 class UserListResponse(BaseModel):
@@ -63,9 +67,22 @@ async def list_users(
             )
 
         data = response.json()
+        
+        # Map fields from Core-API to UserResponse
+        users = []
+        for u in data.get("users", []):
+            users.append(UserResponse(
+                id=u.get("id"),
+                email=u.get("email"),
+                active=u.get("active", True),
+                email_verified=u.get("email_verified", True), # Default to true if unknown
+                created_at=u.get("created_at"),
+                last_login=u.get("last_login")
+            ))
+
         return UserListResponse(
-            users=[UserResponse(**u) for u in data.get("users", [])],
-            total=data.get("total", 0),
+            users=users,
+            total=data.get("total_count", 0),
             page=page,
             per_page=per_page,
         )
@@ -90,7 +107,19 @@ async def get_user(
         if response.status_code != 200:
             raise HTTPException(status_code=500, detail="Failed to fetch user")
 
-        return UserResponse(**response.json())
+        data = response.json()
+        return UserResponse(
+            id=data.get("id"),
+            email=data.get("email"),
+            active=data.get("active", True),
+            email_verified=data.get("email_verified", True),
+            created_at=data.get("created_at"),
+            last_login=data.get("last_login"),
+            total_tasks=data.get("total_tasks", 0),
+            completed_tasks=data.get("completed_tasks", 0),
+            total_projects=data.get("total_projects", 0),
+            recent_tasks=data.get("recent_tasks", [])
+        )
 
 
 @router.post("/{user_id}/disable")
@@ -102,8 +131,9 @@ async def disable_user(
     headers = get_auth_headers(authorization)
 
     async with httpx.AsyncClient() as client:
-        response = await client.post(
-            f"{settings.core_api_url}/api/users/{user_id}/disable",
+        response = await client.patch(
+            f"{settings.core_api_url}/api/users/{user_id}/status",
+            json={"active": False},
             headers=headers,
         )
 
@@ -124,8 +154,9 @@ async def enable_user(
     headers = get_auth_headers(authorization)
 
     async with httpx.AsyncClient() as client:
-        response = await client.post(
-            f"{settings.core_api_url}/api/users/{user_id}/enable",
+        response = await client.patch(
+            f"{settings.core_api_url}/api/users/{user_id}/status",
+            json={"active": True},
             headers=headers,
         )
 

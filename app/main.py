@@ -4,6 +4,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 
 from app.config import get_settings
+from app.database import init_db
+from app.models import SystemSetting  # Ensure models are loaded
 from app.routes import auth, users, analytics, health, settings as settings_router
 
 settings = get_settings()
@@ -13,6 +15,11 @@ app = FastAPI(
     description="Admin panel API for Goalixa platform management",
     version="1.0.0",
 )
+
+# Initialize database
+@app.on_event("startup")
+async def startup_event():
+    init_db()
 
 # CORS
 app.add_middleware(

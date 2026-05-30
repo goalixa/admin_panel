@@ -4,6 +4,7 @@ import Layout from './components/layout/Layout'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Users from './pages/Users'
+import UserDetail from './pages/UserDetail'
 import Analytics from './pages/Analytics'
 import Health from './pages/Health'
 import Settings from './pages/Settings'
@@ -26,7 +27,7 @@ export default function App() {
               <Routes>
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/users" element={<Users />} />
-                <Route path="/users/:id" element={<Users />} />
+                <Route path="/users/:id" element={<UserDetail />} />
                 <Route path="/analytics" element={<Analytics />} />
                 <Route path="/health" element={<Health />} />
                 <Route path="/settings" element={<Settings />} />

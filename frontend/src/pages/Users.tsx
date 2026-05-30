@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getUsers, disableUser, enableUser, deleteUser, User } from '../lib/api'
 
@@ -87,6 +88,12 @@ export default function Users() {
                 </td>
                 <td className="px-6 py-4 text-right">
                   <div className="flex justify-end gap-2">
+                    <Link
+                      to={`/users/${user.id}`}
+                      className="px-3 py-1 text-xs bg-primary/10 text-primary rounded hover:bg-primary/20"
+                    >
+                      View
+                    </Link>
                     {user.active ? (
                       <button
                         onClick={() => disableMutation.mutate(user.id)}
