@@ -3,8 +3,14 @@ replicaCount: 1
 image:
   tag: "staging-latest"
 
+frontend:
+  replicaCount: 1
+  image:
+    tag: "staging-latest"
+
 ingress:
   host: admin.staging.goalixa.com
+
 
 env:
   AUTH_SERVICE_URL: http://goalixa-auth.staging:80

@@ -1,3 +1,4 @@
+# Backend Configuration
 replicaCount: 2
 
 image:
@@ -8,14 +9,6 @@ image:
 service:
   type: ClusterIP
   port: 80
-
-ingress:
-  enabled: true
-  className: nginx
-  host: admin.goalixa.com
-  tls:
-    enabled: true
-    secretName: admin-tls
 
 env:
   AUTH_SERVICE_URL: http://goalixa-auth:80
@@ -30,6 +23,34 @@ resources:
   requests:
     cpu: 100m
     memory: 256Mi
+
+# Frontend Configuration
+frontend:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: harbor.goalixa.com/admin_panel/frontend
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  service:
+    type: ClusterIP
+    port: 80
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 50m
+      memory: 128Mi
+
+# Ingress Configuration
+ingress:
+  enabled: true
+  className: nginx
+  host: admin.goalixa.com
+  tls:
+    enabled: true
+    secretName: admin-tls
 
 autoscaling:
   enabled: true

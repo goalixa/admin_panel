@@ -1,33 +1,32 @@
-{{- if .Values.ingress.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ .Chart.Name }}
+  name: goalixa-admin
+  namespace: goalixa-admin
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
 spec:
-  ingressClassName: {{ .Values.ingress.className }}
+  ingressClassName: nginx
   tls:
   - hosts:
-    - {{ .Values.ingress.host }}
-    secretName: {{ .Values.ingress.tls.secretName }}
+    - admin.goalixa.com
+    secretName: admin-tls
   rules:
-  - host: {{ .Values.ingress.host }}
+  - host: admin.goalixa.com
     http:
       paths:
       - path: /admin/api
         pathType: Prefix
         backend:
           service:
-            name: {{ .Chart.Name }}
+            name: goalixa-admin
             port:
-              number: {{ .Values.service.port }}
+              number: 80
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: {{ .Chart.Name }}-frontend
+            name: goalixa-admin-frontend
             port:
-              number: {{ .Values.frontend.service.port }}
-{{- end }}
+              number: 80

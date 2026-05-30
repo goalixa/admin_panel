@@ -3,8 +3,14 @@ replicaCount: 3
 image:
   tag: "production-latest"
 
+frontend:
+  replicaCount: 2
+  image:
+    tag: "production-latest"
+
 ingress:
   host: admin.goalixa.com
+
 
 env:
   AUTH_SERVICE_URL: http://goalixa-auth:80

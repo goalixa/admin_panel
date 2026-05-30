@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: goalixa-admin-frontend
+  namespace: goalixa-admin
+  labels:
+    app: goalixa-admin-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: goalixa-admin-frontend
+  template:
+    metadata:
+      labels:
+        app: goalixa-admin-frontend
+    spec:
+      containers:
+      - name: goalixa-admin-frontend
+        image: harbor.goalixa.com/admin_panel/frontend:latest
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            cpu: 200m
+            memory: 256Mi
+          requests:
+            cpu: 50m
+            memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: goalixa-admin-frontend
+  namespace: goalixa-admin
+spec:
+  selector:
+    app: goalixa-admin-frontend
+  ports:
+  - port: 80
+    targetPort: 80
+  type: ClusterIP
